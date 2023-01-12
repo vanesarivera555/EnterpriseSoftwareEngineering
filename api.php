@@ -1,0 +1,69 @@
+<?php
+$username="moi920";
+$password="FY$3b%dCJV7WZXqc";
+$data="username=$username&password=$password";
+$ch=curl_init('https://cs4743.professorvaladez.com/api/create_session');//open up curl connection
+curl_setopt($ch, CURLOPT_POST,1);
+curl_setopt($ch, CURLOPT_POSTFIELDS,$data);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);  //turn into var and not spit out to terminal
+curl_setopt($ch, CURLOPT_HTTPHEADER,array(      //sending length of content every time and content type
+    'content-type: application/x-www-form-urlencoded',
+    'content-length: ' . strlen($data))
+);
+$time_start = microtime(true);
+$result = curl_exec($ch);
+$time_end = microtime(true);
+$execution_time = ($time_end - $time_start)/60;
+curl_close($ch);
+$cinfo=json_decode($result,true);  //turnign ruslt into array since data is outputed as JSON data
+//status
+//message 
+//action
+if ($cinfo[0]=="Status: OK" && $cinfo[1]=="MSG: Session Created"){ //if first array and second element is session created, means that thre will b e a sessin id in the third field
+    
+        $sid=$cinfo[2];
+        $data="sid=$sid&uid=$username";
+        echo "\r\nSession Created Successfully!\r\n";
+        echo "SID: $sid\r\r";
+        echo "Create Sesssion Execution Time: $execution_time\r\n"; $ch=curl_init('https://cs4743.professorvaladez.com/api/close_session');
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array(      //sending length of content every time and content type
+                'content-type: application/x-www-form-urlencoded',
+                'content-length: ' . strlen($data))
+        );
+        $time_start = microtime(true);
+        $result = curl_exec($ch);
+        $time_end = microtime(true);
+        $execution_time = ($time_end - $time_start)/60; 
+        curl_close($ch);
+        $cinfo=json_decode($result, true);
+        if ($cinfo[0]=="Status: OK")
+        {
+            echo "Session Successfully closed!\r\n";
+            echo "SID: $sid\r\n";
+            echo "Close Session execution time: $execution_time\r\n";
+        }
+        else
+        {         
+            echo $cinfo[0];
+            echo "\r\n";
+            echo $cinfo[1];
+            echo "\r\n";
+            echo $cinfo[2];
+         
+        }
+    
+}
+else 
+{    //an error had occured to view errorrr    
+            echo $cinfo[0];
+            echo "\r\n";
+            echo $cinfo[1];
+            echo "\r\n";
+            echo $cinfo[2];
+            echo "\r\n";
+}       echo "\r\n";
+    
+?>
